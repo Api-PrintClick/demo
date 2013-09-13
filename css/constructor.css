@@ -1,0 +1,191 @@
+/* Constructor over (begin) */
+body {
+    background: none;
+}
+.g-sidebar {
+    width: 209px;
+}
+h3 {
+    font-weight: normal;
+    font-size: 22px;
+
+    white-space: nowrap;
+
+    margin-bottom: 7px;
+
+    text-shadow: 0px -1px 0px #004a67;
+    color: #00a3e4;
+}
+.b-page {
+    background: none;
+}
+.b-content {
+    width: 890px;
+
+    background: none;
+}
+
+.b-form-row {
+    margin: 0 0 15px;
+}
+.b-form-row:focus {
+    border: 1px solid #49b9e6;
+}
+.reduced-fields .b-textfield {
+    font-size: 15px;
+    padding: 7px 5px 6px;
+    height: 37px;
+}
+.reduced-fields .b-textfield:focus {
+    border: 2px solid #49b9e6;
+    -moz-box-shadow:  none;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+.b-textfield:focus {
+    -moz-box-shadow:  none;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+
+    border: 2px solid #49b9e6;
+}
+.reduced-fields .rem-text {
+    top: 9px;
+    right: 3px;
+    width: 15px;
+    height: 15px;
+
+    background:  url("../images/rem-text-ico.png") 0 0 no-repeat;
+}
+.b-toolbar {
+    background: -moz-linear-gradient(#feffff, #80d1f1);
+    background: -webkit-gradient(linear, 0 0, 0  100%, from(#feffff), to(#80d1f1));
+    filter: progid:DXImageTransform.Microsoft.gradient(enabled='true',startColorstr='#feffff', endColorstr='#80d1f1');
+    background: -ms-linear-gradient(#feffff 0%, #80d1f1 100%);
+
+}
+.b-constr-preview {
+    width: 664px;
+}
+.bw-constructor {
+}
+.bw-constructor .b-welement {
+    margin-top: 7px;
+    margin-bottom: 9px;
+}
+.b-constr-preview .bw-arrows {
+    width: 57px;
+}
+
+.b-form-submit .b-icon  {
+    display: none;
+}
+.b-form-submit {
+    font-size: 15px;
+    font-weight: bold;
+
+    margin-top: 20px;
+    display: block;
+
+    padding: 5px 0px;
+
+    text-align: center;
+
+    text-shadow: 0px -1px 0px #2f5a6c;
+
+    color: #fffefe;
+    border: 1px solid #0480b2;
+    background: #00a3e4;
+}
+.b-form-submit:hover  {
+    padding: 6px 1px;
+
+    border: 0;
+    background: -moz-linear-gradient(#00a3e4, #00405b);
+    background: -webkit-gradient(linear, 0 0, 0  100%, from(#ecebeb), to(#cccbcb));
+    filter: progid:DXImageTransform.Microsoft.gradient(enabled='true',startColorstr='#ecebeb', endColorstr='#cccbcb');
+    background: -ms-linear-gradient(#ecebeb 0%, #cccbcb 100%);
+}
+
+.bw-side .to-back-history input[type=button], .bw-side .to-back-history input[type=button]:hover, .bw-side .to-back-history input[type=button]:active {
+    font-size: 17px;
+
+    width: 46px;
+    height: 66px;
+    margin-top: -4px;
+
+    line-height: 64px;
+    text-shadow: 0px -1px 0px #383838;
+
+    visibility: hidden;
+
+    color: #aaa;
+    background: url("../images/back-btn-bg.png") 0 0 no-repeat;
+}
+
+.bw-side .b-side {
+    width: 168px;
+    margin-left: 0;
+}
+.bw-step {
+    width: 356px;
+}
+
+.cnstl-back {
+    width: 90px;
+    margin-top: 3px;
+
+    -moz-box-shadow:  2px 2px 3px #e1e0e0;
+    -webkit-box-shadow: 2px 2px 3px #e1e0e0;
+    box-shadow: 2px 2px 3px #e1e0e0;
+}
+.cnstl-back span {
+    display: none !important;
+}
+.cnstl-back img {
+    margin-bottom: 0;
+}
+.cnstl-expand {
+    width: 45px;
+    height: 38px;
+    margin-top: 7px;
+    margin-right: 0;
+
+    background:  url("../images/expand-bg.png") 0 0 no-repeat;
+}
+
+.spelling {
+    margin-top: 14px;
+}
+:root * > input[type="checkbox"] + label, :root * > input[type="radio"] + label {
+    padding-left: 31px;
+}
+:root * > input[type="checkbox"] + label::before {
+    padding-left: ;
+    content: url('../images/checkbox-bg.png');
+    clip: rect(auto, auto, 23px, auto);
+}
+:root * > input[type="checkbox"]:checked + label:before {
+    clip: rect(23px, auto, auto, auto);
+    top: -23px;
+}
+
+.b-btn__proceed.grninpt,.b-btn__proceed.grninpt.disabled:hover, .b-btn__proceed.grninpt.disabled:active {
+    font-size: 16px;
+
+    width: 181px;
+    height: 64px;
+    padding: 0;
+
+    line-height: 64px;
+
+    text-shadow: 0px -1px 0px #434f54;
+
+    color: #caf0ff;
+    background: url("../images/next-step-blue-bg.png") 0 0 no-repeat !important;
+}
+
+.b-alert-heading {
+    background: #00a3e4;
+}
+/* Constructor over (end) */

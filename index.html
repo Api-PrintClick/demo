@@ -1,0 +1,316 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>PrintClick.ru API Demo</title>
+        <script src="js/jquery.js" ></script>
+        <script src="js/knockout.js" ></script>
+        <script src="js/main.js" ></script>
+        <link rel="stylesheet" href="css/screen.css" media="all"></link>
+        <script src="js/printclick.js"></script>
+        <link href='http://fonts.googleapis.com/css?family=PT+Sans:400,700,400italic,700italic&subset=latin,cyrillic-ext' rel='stylesheet' type='text/css'></link>
+        <link href='http://fonts.googleapis.com/css?family=Lobster&subset=latin,cyrillic-ext' rel='stylesheet' type='text/css'></link>
+        <script>
+            // Скрипт обработки получения информации о макете
+            printClick.receiveMessage(function(message){
+                if (message.data && message.data.status && message.data.status == "200" ){
+                    dmVm.setGeneratedMaket(message.data);
+                    $('.result-data').show();
+                }
+            }, 'http://www.printclick.ru');
+        </script>
+    </head>
+    <body>
+        <div class="h-wrap g-grey-bg">
+            <div class="head g-centered">
+                <div class="top-panel g-padding">
+                    <span class="logo">ВАШЕ ЛОГО</span>
+                    <div class="top-panel__city-select-layout">
+                        <input type="" class="top-panel__control citys-select" placeholder="Ваш город" data-bind="value: cityName"/><input type="button" class="top-panel__city-select-btn" value="OK" data-bind="click: getDeliveryCost"/>
+                    </div>
+                    <div class="top-panel__delivery-layout">
+                        <!-- ko if: deliveries() && deliveries().length > 1 -->
+                        <select id="delivery-type" name="delivery" class="top-panel__delivery-select top-panel__control" data-bind="options: deliveries, optionsText: function(item){return item.name + ' дней: ' + item.days;}, value: selectedDelivery, optionsCaption: 'Способ доставки'"></select>
+                        <!-- /ko -->
+                        <!-- ko if: areaVariants() && areaVariants().length > 1 && !selectedArea() -->
+                        <select id="delivery-type" name="areas" class="top-panel__delivery-select top-panel__control" data-bind="options: areaVariants, optionsText: 'name', value: selectedArea, optionsCaption: 'Выберите область', event: {change: $root.getDeliveryAreaCost}"></select>
+                        <!-- /ko -->
+                        <!-- ko if: deliveryCost -->
+                        <span  class="top-panel__deliver-cost" data-bind="text: deliveryCost"></span>
+                        <span>руб.</span>
+                        <!-- /ko -->
+                    </div>
+
+                    <div class="top-panel__right-layout">
+                        <div class="top-panel__cart">
+                            <div data-bind="text: 'Корзина ('+batchCost()+') руб.'" onclick="$('.cart-popup').toggle()"></div>
+                            <!-- Cart popup (begin) -->
+                            <!-- ko if: (batch() && batch().length) -->
+                            <div class="cart-popup">
+                                <div class="cart-popup__title" data-bind="text: 'Корзина ('+batchCost()+') руб.'"></div>
+                                <div class="cart-popup__close" onclick="$('.cart-popup').hide()"></div>
+
+                                <div class="cart-popup__products" data-bind="foreach: batch">
+                                    <div class="cart-popup__products__item">
+                                        <div class="cart-popup__product__item__img">
+                                            <img alt="" data-bind="attr:{src:preview}"/>
+                                        </div>
+                                        <div class="cart-popup__products__item__name-count">
+                                            <div class="cart-popup__products__item__title" data-bind="text: name"></div>
+                                            <span class="products-item-cart__count">Кол-во:</span>
+                                            <select id="" name="" class="b-select" data-bind="options: cost, optionsText: 'count', value: buyCount"></select>
+                                        </div>
+                                        <div class="cart-popup__products__item__price" data-bind="text: buyCost() + ' руб'"></div>
+                                        <span class="cart-popup__products__item__remove" data-bind="click: $root.removeFromBatch">удалить</span>
+                                    </div>
+                                </div>
+
+                                <div class="cart-popup__total">
+                                    <div class="cart-popup__right-layout">
+                                        <div class="cart-popup__total-label"><strong>Всего:</strong></div>
+                                        <div class="cart-popup__total-price"><strong data-bind="text: totalOrderPrice() + ' руб.'"></strong></div>
+                                    </div>
+                                    <div class="cart-popup__right-layout">
+                                        <div class="cart-popup__total-label">Доставка:</div>
+                                        <div class="cart-popup__total-price" data-bind="text: deliveryCost() + ' руб.'"></div>
+                                    </div>
+                                    <div class="cart-popup__total__buttons">
+                                        <input type="button" class="g-grey-btn" value="Заказать еще" onclick="$('.cart-popup').hide()"/>
+                                        <input type="button" class="g-yellow-btn" value="Купить" data-bind="click:showOrderForm"/>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <!-- /ko -->
+                            <!-- Cart popup (end) -->
+                        </div>
+                    </div>
+                </div>
+
+                <p class="head__hint-text" >Выберите продукт, который хотите заказать</p>
+                <div class="main-nav" data-bind="foreach: menu">
+                    <div class="main-nav__item" data-bind="css: { 'main-nav__item_current': ($root.menuItem() && $root.menuItem().id == id) }">
+                        <span class="main-nav__item__link" data-bind="text:name, click: $root.showCatalog"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content g-centered">
+                <div class="body-over" style="display:none;"></div>
+                <!-- Side (begin) -->
+                <div class="content-side content-col g-grey-border-and-bg">
+                    <p class="side-title">Выбрать тему:</p>
+                    <div class="main-tags">
+                        <!-- ko if: selectedTag -->
+                        <span class="main-tags__item main-tags__item_current" data-bind="text:selectedTag().group_name"></span>
+                        <!-- /ko -->
+                        <!-- ko foreach: allTags -->
+                        <span class="main-tags__item" data-bind="text:group_name, click: $root.showTagCategory"></span>
+                        <!-- /ko -->
+                    </div>
+                </div>
+                <!-- Side (end) -->
+
+                <!-- Right column (begin) -->
+                <div class="content-col content-col_big">
+                    <div class="g-grey-border-and-bg">
+                        <!-- Search (begin) -->
+                        <div class="cat-search">
+                            <input type="text" class="g-input g-input_18 cat-search__input" data-bind="value: searchText" />
+                            <div class="cat-search__button" data-bind="click: $root.searchMakets"></div>
+                            <!-- ko if: colorTags -->
+                            <div class="cat-search__color-select" onclick="$('.cat-search__color-select__colors').toggle()">
+                                <p data-bind="text: selectedColor"></p>
+                                <div class="cat-search__color-select__colors" data-bind="foreach: colorTags">
+                                    <div class="cat-search__color-select__colors__item" data-bind="text: name, click: $root.selectColor"></div>
+                                </div>
+                            </div>
+                            <!-- /ko -->
+                        </div>
+                        <!-- Search (end) -->
+
+                        <!-- Second level tags (begin) ::: tags_level2__item_current -->
+                        <!-- ko if: selectedTag -->
+                        <div class="tags_level2" data-bind="foreach: selectedTag().tags">
+                            <span class="tags_level2__item" data-bind="text:name, click: $root.showTag, css: {'tags_level2__item_current':($root.tag() == id)}"></span>
+                        </div>
+                        <!-- /ko -->
+                        <!-- Second level tags (end) -->
+                    </div>
+
+                    <!-- Makets (begin) -->
+                    <div class="makets" data-bind="foreach: makets">
+                        <div class="makets__item">
+                            <img class="makets__item__img" data-bind="attr: {src: previews[0]}">
+                                <div class="maket__item_edit" data-bind="click: $root.loadConstMaket">Редактировать</div>
+                                <div class="maket__item_over"></div>
+                        </div>
+                    </div>
+                    <!-- Makets (end) -->
+
+                    <div class="g-grey-border-and-bg pagination-layout">
+                        <div class="pagination">
+                            <span class="pagination__title">Страницы:</span>
+                            <!-- ko foreach: pages -->
+                            <span class="pagination__digit" data-bind="text: num, click: $root.showPage, css: { 'pagination__digit_current': num == $root.page()}"></span>
+                            <!-- /ko -->
+                        </div>
+                        <div class="pagination-fast">
+                            <span class="pagination__title" data-bind="text: 'Найдено шаблонов: ' + totalMakets() + ' шт.'"></span>
+                        </div>
+
+                    </div>
+                </div>
+                <!-- Right column (end) -->
+
+                <!-- Form page -->
+                <div class="content-popup" id="orderPopup" style="display: none;">
+                    <div class="content-popup__close-layout">
+                        <p class="content-popup__close-text">Вы находитесь в оформлении заказа. Нажмите здесь, чтобы выйти.</p>
+                        <div class="content-popup__close-btn" onclick="$('.body-over').hide();$('#orderPopup').hide()"></div>
+                    </div>
+                    <div class="ordering-form">
+                        <h1 class="g-blue-text-and-shadow ordering-form__title">Оформление заказа</h1>
+                        <!-- ko if: contactsError -->
+                        <h2 class="ordering-form__error" data-bind="text: contactsError"></h2>
+                        <!-- /ko -->
+
+                        <h2 class="g-blue-text-and-shadow ordering-form__sub-title">Заказчик:</h2>
+
+                        <div class="ordering-form__row ordering-form__row-first">
+                            <label for="phone" class="ordering-form__label">Телефон*</label>
+                            <input id="phone" type="text" class="g-input g-big-input ordering-form__input" />
+                        </div>
+
+                        <div class="ordering-form__row">
+                            <label for="email" class="ordering-form__label">Электронная почта*</label>
+                            <input id="email" type="text" class="g-input g-big-input ordering-form__input" />
+                        </div>
+
+                        <div class="ordering-form__row">
+                            <label for="fullname" class="ordering-form__label">ФИО*</label>
+                            <input id="fullname" type="text" class="g-input g-big-input ordering-form__input" />
+                        </div>
+
+                        <h2 class="g-blue-text-and-shadow ordering-form__sub-title ordering-form__address-title-margin">Куда доставить?</h2>
+
+                        <div class="ordering-form__row ordering-form__row_textarea">
+                            <label for="address" class="ordering-form__label">Адрес*</label>
+                            <textarea id="address" class="g-input ordering-form__textarea" name=""></textarea>
+                        </div>
+
+                        <div class="ordering-form__row">
+                            <label for="comment" class="ordering-form__label">Комментарий</label>
+                            <input id="comment" type="text" class="g-input g-big-input ordering-form__input" />
+                        </div>
+
+                        <div class="ordering-form__row ordering-form__row_summary">
+                            <div class="ordering-form__cost-detail" data-bind="html: 'Ваш заказ ' + batchCost() + ' Р.<br/>Доставка ' + deliveryCost() + ' Р.'"></div>
+                            <div class="ordering-form__total">
+                                итого
+                                <strong data-bind="text: totalOrderPrice() + ' Р.'"></strong>
+                            </div>
+                            <div class="g-blue-btn-with-arrow ordering-form__complite-btn" data-bind="click:submitOrder">
+                                оформить<br/>
+                                заказ
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Form page -->
+
+                <!-- Preview page (begin) -->
+                <div class="content-popup" id="constructorPopup" style="display: none;">
+                    <div class="content-popup__close-layout">
+                        <p class="content-popup__close-text">Вы находитесь в конструкторе. Нажмите здесь, чтобы выйти.</p>
+                        <div class="content-popup__close-btn" onclick="$('.body-over').hide();$('#constructorPopup').hide()"></div>
+                    </div>
+                    <div class="constructor-content">
+                        <iframe id="constrctrFrame" scrolling="no"></iframe>
+                    </div>
+                    <!-- ko if: generatedMaket -->
+                    <div class="preview-content" data-bind="with: generatedMaket">
+                        <h1 class="preview-content__title">Ваш созданный макет</h1>
+
+                        <div class="preview-content__maket">
+                            <div class="preview-content__maket__title">
+                                Лицевая сторона
+                            </div>
+                            <div class="preview-content__maket__img-wrap">
+                                <img data-bind="attr:{src:preview}" alt="" />
+                            </div>
+                        </div>
+                        <!-- ko if : previews[1] -->
+                        <div class="preview-content__maket">
+                            <div class="preview-content__maket__title">
+                                Обратная сторона
+                            </div>
+                            <div class="preview-content__maket__img-wrap">
+                                <img data-bind="attr:{src:previews[1]}" alt="" />
+                            </div>
+                        </div>
+                        <!-- /ko -->
+
+                        <div class="preview-content__buttons">
+                            <input type="button" class="g-blue-btn" value="Редактировать дальше" onclick="$('.constructor-content').show()"/>
+                            <input type="button" class="g-blue-btn" value="Выбрать другой шаблон" onclick="$('.body-over').hide();$('.preview-content').hide(); $('#constructorPopup').hide();"/>
+                            <input type="button" class="g-yellow-btn" value="Положить в корзину" onclick="$('.body-over').hide();$('.preview-content').hide(); $('#constructorPopup').hide(); " data-bind="click:$root.addToBatch"/>
+                        </div>
+
+                        <div class="preview-content__right-layout">
+                            <span class="preview-content__label">Выбрать кол-во:</span>&nbsp;
+                            <select class="b-select b-select_white" data-bind="options: cost, optionsText: 'count', value: buyCount"></select><span class="preview-content__label">шт.</span>
+                            <p class="preview-content__label">Цена: <span class="g-blue-text-and-shadow" data-bind="text: buyCost() + ' руб.'"></span></p>
+                        </div>
+                        <div class="g-clear preview-content__space"></div>
+                    </div>
+                    <!-- /ko -->
+                </div>
+                <!-- Preview page (end) -->
+
+                <!-- Message page (begin) -->
+                <div class="content-popup" id="thanksPopup" style="display: none">
+                    <div class="content-popup__close-layout">
+                        <p class="content-popup__close-text">Нажмите здесь, чтобы выйти.</p>
+                        <div class="content-popup__close-btn" onclick="$('.body-over').hide();$('#thanksPopup').hide()"></div>
+                    </div>
+                    <div class="thx-message">
+                        <h1 class="ths-message__title">Спасибо за Ваш заказ!</h1>
+                        <p class="ths-message__number-title">Номер вашего заказа*</p>
+                        <h2 class="ths-message__number" data-bind="text: lastOrderId"></h2>
+                        <p class="ths-message__note">*На указанный email Вам  было отправлено письмо с номером заказа.</p>
+                    </div>
+                </div>
+                <!-- Message page (end) -->
+
+                <!-- ko foreach: products -->
+                <div class="product-item-section">
+                    <h3 class="product-item__title" data-bind="text: 'Вы можете купить у нас ' + group_name" onclick="$('.products-item-cards').toggle()"></h3>
+                    <div class="product-item">
+                        <!-- ko foreach: products -->
+                        <span class="products-item-cards">
+                            <!-- ko if: (cost.length > 1) -->
+                            <p class="products-item-cost" data-bind="html: (cost.length > 1 ? cost[0].cost + ' <span>p.</span>' : '')"></p>
+                            <!-- /ko -->
+                            <img class="products-item-img  g-grey-border-and-bg" data-bind="attr:{src:preview}"/>
+                            <p class="products-item-cards__title" data-bind="text: name"></p>
+                            <!-- ko if: (cost.length > 1) -->
+                            <input class="products-item-cart-btn g-blue-btn" type="button" value="В корзину" data-bind="click:$root.addToBatch">
+                                <span class="products-item-cart__count">Кол-во</span>
+                                <div class="procuts-item-cards__select-layout">
+                                    <select class="b-select" data-bind="options: cost, optionsText: 'count', value: buyCount"></select>
+                                </div>
+                                <span class="products-item-cart__count">шт.</span>
+                                <!-- /ko -->
+                                <!-- ko if: (cost.length <= 1) -->
+                                <p class="products-item-cart__count_empty">Временно нет в наличии</p>
+                                <!-- /ko -->
+                        </span>
+                        <!-- /ko -->
+                    </div>
+                </div>
+                <!-- /ko -->
+            </div>
+        </div>
+    </body>
+</html>

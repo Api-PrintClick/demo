@@ -100,7 +100,7 @@ var DemoViewModel = function() {
         // Номер заказа пользователя
         self.lastOrderId = ko.observable(0);
 
-
+        // Суммируем доставку и корзину
         self.totalOrderPrice = ko.computed(function() {
             return (parseInt(self.batchCost()) + parseInt(self.deliveryCost())).toString().replace(/(\d)(?=(\d{3})+$)/g, '$1 ');
         });
@@ -121,30 +121,78 @@ var DemoViewModel = function() {
             return out;
         });
 
+        // Заранее подготавливаем продукты которые хотим продавать.
+        // Полный список продуктов доступен в методе API : get_categories
+        var selectedProducts = [{
+            alias: "business-cards",
+            name: "Визитки",
+            pageSize: 15
+        }, {
+            alias: "lists",
+            name: "Листовки",
+            heigth: 1250,
+            pageSize: 9
+        }, {
+            alias: "notebooks",
+            name: "Блокноты",
+            heigth: 1250,
+            pageSize: 9
+        }, {
+            alias: "parties",
+            name: "Открытки",
+            heigth: 1250,
+            pageSize: 12
+        }, {
+            alias: "pocket",
+            name: "Календари",
+            pageSize: 12
+        }, {
+            alias: "folder",
+            name: "Папки",
+            pageSize: 16
+        }, {
+            alias: "fblank",
+            name: "Бланки",
+            heigth: 1250,
+            pageSize: 9
+        }]
+
+        /**
+         * Обработчики изменений
+         */
+        // Смена категории продуктов
         self.showCatalog = function(obj) {
-            self.menuItem(obj);
-            self.costs(null);
-            self.makets(null);
-            self.pages(null);
-            self.page(1);
-            self.tag(0);
-            self.selectedColorTag(null);
-            self.searchText("");
-
-            self.workCategory(obj.id);
-            self.pagesize(obj.pageSize);
-            self.loadCosts();
-            self.loadTags();
-        }
-
-        self.showPage = function(obj) {
-            if (parseInt(obj.num) > 0 && obj.num != self.page()) {
+                self.menuItem(obj);
+                self.costs(null);
                 self.makets(null);
-                self.page(obj.num);
+                self.pages(null);
+                self.page(1);
+                self.tag(0);
+                self.selectedColorTag(null);
+                self.searchText("");
+
+                self.workCategory(obj.id);
+                self.pagesize(obj.pageSize);
+                self.loadCosts();
+                self.loadTags();
+            }
+            // Переход на страницу каталога
+            self.showPage = function(obj) {
+                if (parseInt(obj.num) > 0 && obj.num != self.page()) {
+                    self.makets(null);
+                    self.page(obj.num);
+                    self.loadMakets();
+                }
+            }
+            // Выбрать макеты по тэгу
+            self.showTagCategory = function(obj) {
+                self.searchText("");
+                self.tag(0);
+                self.selectedColorTag(null);
+                self.selectedTag(obj);
+                self.page(1);
                 self.loadMakets();
             }
-        }
-
         self.showTag = function(obj) {
             self.searchText("");
             self.makets(null);
@@ -153,14 +201,7 @@ var DemoViewModel = function() {
             self.tag(obj.id);
             self.loadMakets();
         }
-        self.showTagCategory = function(obj) {
-            self.searchText("");
-            self.tag(0);
-            self.selectedColorTag(null);
-            self.selectedTag(obj);
-            self.page(1);
-            self.loadMakets();
-        }
+        // Поиск макетов по фразе
         self.searchMakets = function() {
             self.tag(0);
             self.selectedColorTag(null);
@@ -168,6 +209,7 @@ var DemoViewModel = function() {
             self.page(1);
             self.loadMakets();
         }
+        // Выбор макетов по цветовому тэгу
         self.selectColor = function(obj) {
             self.searchText("");
             self.tag(0);
@@ -188,82 +230,6 @@ var DemoViewModel = function() {
         self.showOrderForm = function() {
             $(".body-over").show();
             $("#orderPopup").show();
-        }
-
-        self.submitOrder = function() {
-            // Check contacts
-            var errors = "";
-            var fullname = $.trim($('#fullname').val());
-            if (fullname.length == 0) {
-                errors += "Введите свое имя; ";
-            }
-            var phone = $.trim($('#phone').val());
-            if (phone.length == 0) {
-                errors += "Введите свой телефон; ";
-            }
-            var email = $.trim($('#email').val());
-            if (email.length == 0) {
-                errors += "Введите свой email; ";
-            }
-            var address = $.trim($('#address').val());
-            if (address.length == 0) {
-                errors += "Введите свой адрес; ";
-            }
-            var comment = $.trim($('#comment').val());
-            if (self.batch().length == 0) {
-                errors += "Ваша корзина пуста; ";
-            }
-            if (self.batch().length == 0) {
-                errors += "Ваша корзина пуста; ";
-            }
-            if (!self.selectedDelivery()) {
-                errors += "Выберите способ доставки; ";
-            }
-            self.contactsError(errors);
-            if (errors.length == 0) {
-                var orderObj = {
-                    partner: 1753,
-                    develop: 1
-                };
-                orderObj.contacts = {
-                    phone: phone,
-                    email: email,
-                    fullname: fullname,
-                    address: address,
-                    message: comment
-                };
-                orderObj.delivery = {
-                    type: self.selectedDelivery().name,
-                    city: self.cityName()
-                }
-                if (self.selectedArea()) {
-                    orderObj.delivery.city_id = self.selectedArea().city_id;
-                }
-                orderObj.batch = new Array();
-                var btch = self.batch();
-                for (var i = 0; i < btch.length; i++) {
-                    if (btch[i].maket) {
-                        orderObj.batch.push({
-                            id: btch[i].id,
-                            count: btch[i].buyCount().count
-                        });
-                    } else {
-                        orderObj.batch.push({
-                            product_id: btch[i].id,
-                            count: btch[i].buyCount().count
-                        });
-                    }
-                }
-                callJsonpApi("/make_order/jsonp?tmp=1", function(data) {
-                    if (data && data.data) {
-                        self.lastOrderId(data.data.order);
-                        self.batch(null);
-                        $(".content-popup").hide();
-                        $(".body-over").show();
-                        $("#thanksPopup").show();
-                    }
-                }, orderObj);
-            }
         }
 
         self.loadTags = function() {
@@ -363,8 +329,26 @@ var DemoViewModel = function() {
             }
         }
 
+        /**
+         * Загрузка конструктора в IFrame
+         * При формировании URL конструктору нужно передать:
+         *      ID шаблона, который показывать
+         *      URL вашего сайта
+         *      CSS для кастомизации конструктора (опционально)
+         */
         self.loadConstMaket = function(obj) {
             self.generatedMaket(null);
+            // Изменяем размер высоту IFrame в зависимости от типа продукта
+            var frameHeigth = 750;
+            for (var i = 0; i < selectedProducts.length; i++) {
+                if (selectedProducts[i].id == self.workCategory() && selectedProducts[i].heigth) {
+                    frameHeigth = selectedProducts[i].heigth;
+                    break;
+                }
+            }
+            $(".constructor-content").height(frameHeigth);
+            $("#constrctrFrame").height(frameHeigth);
+            // Грузим конструктор
             var url = "http://www.printclick.ru/api-constructor.html?id=" + obj.id + "&callback=http://demo.printclick.ru&css=http://demo.printclick.ru/css/constructor.css?ver=3";
             $("#constrctrFrame").attr("src", url);
             $(".body-over").show();
@@ -458,6 +442,82 @@ var DemoViewModel = function() {
             self.pages(pages);
         }
 
+        self.submitOrder = function() {
+            // Check contacts
+            var errors = "";
+            var fullname = $.trim($('#fullname').val());
+            if (fullname.length == 0) {
+                errors += "Введите свое имя; ";
+            }
+            var phone = $.trim($('#phone').val());
+            if (phone.length == 0) {
+                errors += "Введите свой телефон; ";
+            }
+            var email = $.trim($('#email').val());
+            if (email.length == 0) {
+                errors += "Введите свой email; ";
+            }
+            var address = $.trim($('#address').val());
+            if (address.length == 0) {
+                errors += "Введите свой адрес; ";
+            }
+            var comment = $.trim($('#comment').val());
+            if (self.batch().length == 0) {
+                errors += "Ваша корзина пуста; ";
+            }
+            if (self.batch().length == 0) {
+                errors += "Ваша корзина пуста; ";
+            }
+            if (!self.selectedDelivery()) {
+                errors += "Выберите способ доставки; ";
+            }
+            self.contactsError(errors);
+            if (errors.length == 0) {
+                var orderObj = {
+                    partner: 1753,
+                    develop: 1
+                };
+                orderObj.contacts = {
+                    phone: phone,
+                    email: email,
+                    fullname: fullname,
+                    address: address,
+                    message: comment
+                };
+                orderObj.delivery = {
+                    type: self.selectedDelivery().name,
+                    city: self.cityName()
+                }
+                if (self.selectedArea()) {
+                    orderObj.delivery.city_id = self.selectedArea().city_id;
+                }
+                orderObj.batch = new Array();
+                var btch = self.batch();
+                for (var i = 0; i < btch.length; i++) {
+                    if (btch[i].maket) {
+                        orderObj.batch.push({
+                            id: btch[i].id,
+                            count: btch[i].buyCount().count
+                        });
+                    } else {
+                        orderObj.batch.push({
+                            product_id: btch[i].id,
+                            count: btch[i].buyCount().count
+                        });
+                    }
+                }
+                callJsonpApi("/make_order/jsonp?tmp=1", function(data) {
+                    if (data && data.data) {
+                        self.lastOrderId(data.data.order);
+                        self.batch(null);
+                        $(".content-popup").hide();
+                        $(".body-over").show();
+                        $("#thanksPopup").show();
+                    }
+                }, orderObj);
+            }
+        }
+
         self.removeFromBatch = function(obj) {
             var batch = self.batch();
             var newBatch = new Array();
@@ -485,35 +545,6 @@ var DemoViewModel = function() {
             }
         }
 
-        var selectedProducts = [{
-            alias: "business-cards",
-            name: "Визитки",
-            pageSize: 15
-        }, {
-            alias: "lists",
-            name: "Листовки",
-            pageSize: 9
-        }, {
-            alias: "notebooks",
-            name: "Блокноты",
-            pageSize: 9
-        }, {
-            alias: "parties",
-            name: "Открытки",
-            pageSize: 12
-        }, {
-            alias: "pocket",
-            name: "Календари",
-            pageSize: 12
-        }, {
-            alias: "folder",
-            name: "Папки",
-            pageSize: 16
-        }, {
-            alias: "fblank",
-            name: "Бланки",
-            pageSize: 9
-        }]
         // load data
         callJsonpApi("/get_categories/jsonp?tmp=1", function(data) {
             if (data && data.status) {

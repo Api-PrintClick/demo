@@ -12,6 +12,12 @@ function callJsonpApi(request, callback, params) {
 var DemoViewModel = function() {
         var self = this;
         /**
+         * Домен на котором работает сайт, куда должны идти ответы от конструктора
+         */
+        self.webDomain = "http://demo.printclick.ru";
+        self.constructorCss = self.webDomain + "/css/constructor.css?ver=5";
+        self.partnerRef = 1753;
+        /**
          * Блок работы с каталогом продуктов
          */
         // Список категорий продуктов
@@ -122,7 +128,7 @@ var DemoViewModel = function() {
         });
 
         // Заранее подготавливаем продукты которые хотим продавать.
-        // Полный список продуктов доступен в методе API : get_categories
+        // Полный список продуктов доступен в методе API : get_categories (http://www.printclick.ru/api-docs.html#get_categories)
         var selectedProducts = [{
             alias: "business-cards",
             name: "Визитки",
@@ -149,7 +155,7 @@ var DemoViewModel = function() {
         }, {
             alias: "folder",
             name: "Папки",
-            pageSize: 16
+            pageSize: 12
         }, {
             alias: "fblank",
             name: "Бланки",
@@ -228,8 +234,24 @@ var DemoViewModel = function() {
         }
 
         self.showOrderForm = function() {
-            $(".body-over").show();
-            $("#orderPopup").show();
+            $('.cart-popup').hide();
+            if (self.selectedDelivery()) {
+                $(".body-over").show();
+                $("#orderPopup").show();
+            } else {
+                $(document.body).animate({
+                    'scrollTop': $('#topPanelDiv').offset().top
+                }, 100);
+                $('.top-panel__city-select-hint').show().animate({
+                    fontSize: "20px"
+                }, 500).animate({
+                    fontSize: "16px"
+                }, 500).animate({
+                    fontSize: "20px"
+                }, 500).animate({
+                    fontSize: "16px"
+                }, 500);
+            }
         }
 
         self.loadTags = function() {
@@ -349,15 +371,16 @@ var DemoViewModel = function() {
             $(".constructor-content").height(frameHeigth);
             $("#constrctrFrame").height(frameHeigth);
             // Грузим конструктор
-            var url = "http://www.printclick.ru/api-constructor.html?id=" + obj.id + "&callback=http://demo.printclick.ru&css=http://demo.printclick.ru/css/constructor.css?ver=3";
+            var url = "http://www.printclick.ru/api-constructor.html?id=" + obj.id + "&callback=" + self.webDomain + "&css=" + self.constructorCss;
             $("#constrctrFrame").attr("src", url);
             $(".body-over").show();
             $('#constructorPopup').show();
+            $(".constructor-content").show();
         }
 
         self.setGeneratedMaket = function(obj) {
             obj.cost = self.costs();
-            obj.buyCount = ko.observable(obj.cost[0]);
+            obj.buyCount = ko.observable(obj.cost[1]);
             obj.buyCost = ko.computed(function() {
                 var bc = this.buyCount();
                 return bc ? bc.cost : 0;
@@ -474,7 +497,7 @@ var DemoViewModel = function() {
             self.contactsError(errors);
             if (errors.length == 0) {
                 var orderObj = {
-                    partner: 1753,
+                    partner: self.partnerRef,
                     develop: 1
                 };
                 orderObj.contacts = {
@@ -543,6 +566,10 @@ var DemoViewModel = function() {
             } else {
                 self.batch(batch);
             }
+            $('.cart-popup').show();
+            $(document.body).animate({
+                'scrollTop': $('#topPanelDiv').offset().top
+            }, 1000);
         }
 
         // load data

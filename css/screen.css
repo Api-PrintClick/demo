@@ -251,6 +251,14 @@ input {
     filter: progid:DXImageTransform.Microsoft.gradient(enabled='true',startColorstr='#075d80', endColorstr='#032635');
     background: -ms-linear-gradient(#075d80 0%, #032635 100%);
 }
+.top-panel__city-select-hint {
+    position: absolute;
+    top: 40px;
+    color: #fff;
+    font-size: 16px;
+    text-shadow: 0px 1px 0px #0171a5;
+    display: none;
+}
 .top-panel__delivery-layout {
     margin: 10px 0px 0px 20px;
 }
@@ -426,24 +434,31 @@ input {
     color: #fff;
 }
 .api-printclick-link{
-    font-size: 12px;
+    padding-top: 5px;
+    font-size: 17px;
+    letter-spacing: 3px;
     position: absolute;
     top: 66px;
     right: 19px;
     display: block;
     width: 132px;
-    height: 52px;
+    height: 47px;
     text-shadow: 0px 1px 0px #001821;
     text-decoration: none;
     color: #00a3e4;
     background: #003f59;
     text-align: center;
+    line-height: 19px;
+    z-index: 1;
 }
-.api-printclick-link p{
-    line-height: 18px;
-    font-size: 20px;
+.api-printclick-link span{
+    letter-spacing: 0px;
+    line-height: 22px;
+    font-weight: bold;
+    font-size: 18px;
+    text-transform: uppercase;
 }
-.api-printclick-link:hover {
+.api-printclick-link:hover{
     color: #fff;
 }
 
@@ -460,7 +475,7 @@ input {
 .main-nav {
     font-size: 0;
     line-height: 0;
-    margin-top:110px;
+    margin-top: 40px;
     text-align: center;
 }
 .main-nav__item {

@@ -23,10 +23,11 @@
     <body>
         <div class="h-wrap g-grey-bg">
             <div class="head g-centered">
-                <div class="top-panel g-padding">
+                <div class="top-panel g-padding" id="topPanelDiv">
                     <span class="logo">ВАШЕ ЛОГО</span>
                     <div class="top-panel__city-select-layout">
-                        <input type="" class="top-panel__control citys-select" placeholder="Ваш город" data-bind="value: cityName"/><input type="button" class="top-panel__city-select-btn" value="OK" data-bind="click: getDeliveryCost"/>
+                        <input type="" class="top-panel__control citys-select" placeholder="Ваш город" data-bind="value: cityName" onclick="$('.top-panel__city-select-hint').hide()"/><input type="button" class="top-panel__city-select-btn" value="OK" data-bind="click: getDeliveryCost"/>
+                        <span class="top-panel__city-select-hint">&uarr; Куда доставлять?</span>
                     </div>
                     <div class="top-panel__delivery-layout">
                         <!-- ko if: deliveries() && deliveries().length > 1 -->
@@ -87,7 +88,7 @@
                     </div>
                 </div>
 
-                <p class="head__hint-text" >Выберите продукт, который хотите заказать</p>
+                <p class="head__hint-text">Выберите продукт, который хотите заказать</p>
                 <div class="main-nav" data-bind="foreach: menu">
                     <div class="main-nav__item" data-bind="css: { 'main-nav__item_current': ($root.menuItem() && $root.menuItem().id == id) }">
                         <span class="main-nav__item__link" data-bind="text:name, click: $root.showCatalog"></span>
@@ -254,7 +255,7 @@
                         <div class="preview-content__buttons">
                             <input type="button" class="g-blue-btn" value="Редактировать дальше" onclick="$('.constructor-content').show()"/>
                             <input type="button" class="g-blue-btn" value="Выбрать другой шаблон" onclick="$('.body-over').hide();$('.preview-content').hide(); $('#constructorPopup').hide();"/>
-                            <input type="button" class="g-yellow-btn" value="Положить в корзину" onclick="$('.body-over').hide();$('.preview-content').hide(); $('#constructorPopup').hide(); " data-bind="click:$root.addToBatch"/>
+                            <input type="button" class="g-yellow-btn" value="Положить в корзину" onclick="$('.body-over').hide();$('.preview-content').hide(); $('#constructorPopup').hide();" data-bind="click:$root.addToBatch"/>
                         </div>
 
                         <div class="preview-content__right-layout">

@@ -136,17 +136,17 @@ var DemoViewModel = function() {
         }, {
             alias: "lists",
             name: "Листовки",
-            heigth: 1250,
+            heigth: 1450,
             pageSize: 9
         }, {
             alias: "notebooks",
             name: "Блокноты",
-            heigth: 1250,
+            heigth: 1450,
             pageSize: 9
         }, {
             alias: "parties",
             name: "Открытки",
-            heigth: 1250,
+            heigth: 1450,
             pageSize: 12
         }, {
             alias: "pocket",
@@ -159,7 +159,7 @@ var DemoViewModel = function() {
         }, {
             alias: "fblank",
             name: "Бланки",
-            heigth: 1250,
+            heigth: 1450,
             pageSize: 9
         }]
 
@@ -361,7 +361,7 @@ var DemoViewModel = function() {
         self.loadConstMaket = function(obj) {
             self.generatedMaket(null);
             // Изменяем размер высоту IFrame в зависимости от типа продукта
-            var frameHeigth = 750;
+            var frameHeigth = 950;
             for (var i = 0; i < selectedProducts.length; i++) {
                 if (selectedProducts[i].id == self.workCategory() && selectedProducts[i].heigth) {
                     frameHeigth = selectedProducts[i].heigth;
@@ -567,7 +567,7 @@ var DemoViewModel = function() {
                 self.batch(batch);
             }
             $('.cart-popup').show();
-            $(document.body).animate({
+            $('body,html').animate({
                 'scrollTop': $('#topPanelDiv').offset().top
             }, 1000);
         }

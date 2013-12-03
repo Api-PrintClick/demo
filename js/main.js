@@ -54,6 +54,21 @@ var DemoViewModel = function() {
         self.selectedColor = ko.computed(function() {
             return self.selectedColorTag() ? self.selectedColorTag().name : "Выбрать цвет макета";
         });
+        // Выбираем категории тэгов для каталога, исключая выбранную категорию, для отображения в каталоге
+        self.allTags = ko.computed(function() {
+            var out = new Array();
+            var tags = self.tags();
+            var selected = self.selectedTag();
+            if (tags) {
+                var checkName = selected ? selected.group_name : "";
+                for (var i = 0; i < tags.length; i++) {
+                    if (tags[i].group_name != checkName) {
+                        out.push(tags[i]);
+                    }
+                }
+            }
+            return out;
+        });
         /**
          * Сопуствующие товары
          */
@@ -111,22 +126,6 @@ var DemoViewModel = function() {
             return (parseInt(self.batchCost()) + parseInt(self.deliveryCost())).toString().replace(/(\d)(?=(\d{3})+$)/g, '$1 ');
         });
 
-        // Выбираем категории тэгов для каталога, исключая выбранную категорию
-        self.allTags = ko.computed(function() {
-            var out = new Array();
-            var tags = self.tags();
-            var selected = self.selectedTag();
-            if (tags) {
-                var checkName = selected ? selected.group_name : "";
-                for (var i = 0; i < tags.length; i++) {
-                    if (tags[i].group_name != checkName) {
-                        out.push(tags[i]);
-                    }
-                }
-            }
-            return out;
-        });
-
         // Заранее подготавливаем продукты которые хотим продавать.
         // Полный список продуктов доступен в методе API : get_categories (http://www.printclick.ru/api-docs.html#get_categories)
         var selectedProducts = [{
@@ -181,24 +180,24 @@ var DemoViewModel = function() {
                 self.pagesize(obj.pageSize);
                 self.loadCosts();
                 self.loadTags();
-            }
-            // Переход на страницу каталога
-            self.showPage = function(obj) {
-                if (parseInt(obj.num) > 0 && obj.num != self.page()) {
-                    self.makets(null);
-                    self.page(obj.num);
-                    self.loadMakets();
-                }
-            }
-            // Выбрать макеты по тэгу
-            self.showTagCategory = function(obj) {
-                self.searchText("");
-                self.tag(0);
-                self.selectedColorTag(null);
-                self.selectedTag(obj);
-                self.page(1);
+            };
+        // Переход на страницу каталога
+        self.showPage = function(obj) {
+            if (parseInt(obj.num) > 0 && obj.num != self.page()) {
+                self.makets(null);
+                self.page(obj.num);
                 self.loadMakets();
             }
+        };
+        // Выбрать макеты по тэгу
+        self.showTagCategory = function(obj) {
+            self.searchText("");
+            self.tag(0);
+            self.selectedColorTag(null);
+            self.selectedTag(obj);
+            self.page(1);
+            self.loadMakets();
+        };
         self.showTag = function(obj) {
             self.searchText("");
             self.makets(null);
@@ -206,7 +205,7 @@ var DemoViewModel = function() {
             self.page(1);
             self.tag(obj.id);
             self.loadMakets();
-        }
+        };
         // Поиск макетов по фразе
         self.searchMakets = function() {
             self.tag(0);
@@ -214,7 +213,7 @@ var DemoViewModel = function() {
             self.selectedTag(null);
             self.page(1);
             self.loadMakets();
-        }
+        };
         // Выбор макетов по цветовому тэгу
         self.selectColor = function(obj) {
             self.searchText("");
@@ -223,7 +222,7 @@ var DemoViewModel = function() {
             self.selectedColorTag(obj);
             self.page(1);
             self.loadMakets();
-        }
+        };
 
         self.loadCosts = function() {
             callJsonpApi("/get_cost/jsonp/?category=" + self.workCategory(), function(data) {
@@ -231,7 +230,7 @@ var DemoViewModel = function() {
                     self.costs(data.data);
                 }
             });
-        }
+        };
 
         self.showOrderForm = function() {
             $('.cart-popup').hide();
@@ -252,7 +251,7 @@ var DemoViewModel = function() {
                     fontSize: "16px"
                 }, 500);
             }
-        }
+        };
 
         self.loadTags = function() {
             self.tag(0);
@@ -273,8 +272,7 @@ var DemoViewModel = function() {
                 }
                 self.loadMakets();
             });
-        }
-
+        };
         self.loadMakets = function() {
             var url = "/get_catalog/jsonp?category=" + self.workCategory() + "&page=" + self.page() + "&pagesize=" + self.pagesize();
             if (self.searchText().length) {
@@ -307,7 +305,7 @@ var DemoViewModel = function() {
                     self.makets(data.data.items);
                 }
             });
-        }
+        };
 
         self.getDeliveryCost = function() {
             self.deliveries(null);
@@ -330,7 +328,7 @@ var DemoViewModel = function() {
             } else {
                 alert("Введите название города");
             }
-        }
+        };
         self.getDeliveryAreaCost = function() {
             self.deliveries(null);
             self.selectedDelivery(null);
@@ -349,7 +347,7 @@ var DemoViewModel = function() {
             } else {
                 alert("Введите название города");
             }
-        }
+        };
 
         /**
          * Загрузка конструктора в IFrame
@@ -376,7 +374,7 @@ var DemoViewModel = function() {
             $(".body-over").show();
             $('#constructorPopup').show();
             $(".constructor-content").show();
-        }
+        };
 
         self.setGeneratedMaket = function(obj) {
             obj.cost = self.costs();
@@ -394,7 +392,7 @@ var DemoViewModel = function() {
             obj.preview = obj.previews[0];
             self.generatedMaket(obj);
             $(".constructor-content").hide();
-        }
+        };
 
         self.countPage = function(total) {
             var maxPages = 2;
@@ -463,7 +461,7 @@ var DemoViewModel = function() {
                 }
             }
             self.pages(pages);
-        }
+        };
 
         self.submitOrder = function() {
             // Check contacts
@@ -539,7 +537,7 @@ var DemoViewModel = function() {
                     }
                 }, orderObj);
             }
-        }
+        };
 
         self.removeFromBatch = function(obj) {
             var batch = self.batch();
@@ -550,7 +548,7 @@ var DemoViewModel = function() {
                 }
             }
             self.batch(newBatch);
-        }
+        };
 
         self.addToBatch = function(obj) {
             var batch = self.batch();
@@ -570,7 +568,7 @@ var DemoViewModel = function() {
             $('body,html').animate({
                 'scrollTop': $('#topPanelDiv').offset().top
             }, 1000);
-        }
+        };
 
         // load data
         callJsonpApi("/get_categories/jsonp?tmp=1", function(data) {
@@ -603,7 +601,7 @@ var DemoViewModel = function() {
                 self.products(data.data);
             }
         });
-    }
+    };
 var dmVm = null;
 $(document).ready(function() {
     dmVm = new DemoViewModel();
